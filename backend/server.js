@@ -1,32 +1,19 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
+import productRoutes from './routes/product.route.js';
 
-dotenv.config(); // 加载 .env 文件中的 MONGO_URI 值，供 process.env.MONGO_URI 使用。
+dotenv.config(); // Load the MONGO_URI value from the .env file so that it can be accessed via process.env.MONGO_URI
 const app = express();
 
-app.get('/products', async (req, res) => {
-  const product = req.body;
+const PORT = process.env.PORT || 3000; // Use the PORT from .env or default to 3000
 
-  if(!product.name || !product.price || !product.image) {
-    return res.status(400).json({ success: false, message: 'Please fill all the fields' });
-  }
+app.use(express.json()); // Middleware to parse JSON bodies. allows us to access json data in req.body
 
-  const newProducts = new Product(product);
-  try {
-    await newProducts.save();
-    res.status(201).json({ success: true, data: newProducts });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
-});
-
-console.log(process.env.MONGO_URL);
-
-// postman test
+app.use('/api/products', productRoutes)
 
 
-app.listen(3000, () => {
+app.listen(PORT, () => {
   connectDB();
-  console.log('Server is running on port http://localhost:3000');
+  console.log('Server is running on port http://localhost:' + PORT);
 })
